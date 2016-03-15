@@ -1,7 +1,7 @@
 describe('Controller: LoginController', function() {
   beforeEach(module('home'));
 
-  var scope, q, controller, location, sessionService, locationService;
+  var scope, q, controller, location, sessionService, locationService, stateParams;
 
   var dummyLocations = {
     "results": [{
@@ -28,11 +28,12 @@ describe('Controller: LoginController', function() {
     }]
   };
 
-  beforeEach(inject(function($controller, $rootScope, _$location_, _locationService_, _sessionService_, $q) {
+  beforeEach(inject(function($controller, $rootScope, _$location_, _locationService_, _sessionService_, $q, $stateParams) {
     scope = $rootScope.$new();
     q = $q;
     location = _$location_;
     controller = $controller;
+    stateParams = $stateParams;
     sessionService = _sessionService_;
     locationService = _locationService_;
 
@@ -211,5 +212,19 @@ describe('Controller: LoginController', function() {
 
     expect(sessionService.get).toHaveBeenCalled();
     expect(location.path).toHaveBeenCalledWith('/dashboard');
+  });
+
+  it('should show session expired message if indicated by state', function() {
+    stateParams.showLoginMessage = true;
+
+    // construct controller
+    controller('LoginController', {
+      $scope: scope,
+      $location: location,
+      restService: locationService,
+      sessionService: sessionService
+    });
+
+    expect(scope.errorMessage).toEqual('You are not authenticated or your session expired. Please login.');
   });
 });
